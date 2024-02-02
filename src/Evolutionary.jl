@@ -60,6 +60,10 @@ module Evolutionary
     include("ga.jl")
     include("nsga2.jl")
 
+    # Quality Diversity
+    include("quality-diversity.jl")
+    export QD, QDObjectiveFunction
+
     # Differential Evolution
     include("de.jl")
 
