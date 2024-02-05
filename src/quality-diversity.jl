@@ -114,46 +114,6 @@ function update_state!(objfun, constraints, state::QDState, parents, method::QD,
     return false
 end
 
-# function update_state!(objfun, constraints, state, parents::AbstractVector{IT}, method::QD, options, itr) where {IT}
-#     populationSize = method.populationSize
-#     rng = options.rng
-
-#     # create an offspring popultation
-#     offspring = similar(parents)
-
-#     # select offspring
-#     selected = method.selection(state.fitpop, populationSize, rng=rng)
-
-#     # perform mating
-#     recombine!(offspring, parents, selected, method, rng=rng)
-
-#     # perform mutation
-#     mutate!(view(offspring, 1:populationSize), method, constraints, rng=rng)
-
-#     # Elitism (copy elite individuals from selection to the offspring)
-#     selfit = view(state.fitpop, selected)
-#     fitidxs = sortperm(selfit)
-#     for i in 1:state.eliteSize
-#         subs = populationSize+i
-#         offspring[subs] = parents[selected[fitidxs[i]]]
-#     end
-
-#     # calculate fitness of the population
-#     evaluate!(objfun, state.fitpop, offspring, constraints)
-
-#     # apply auxiliary function after mutation operations
-#     method.after_op !== identity && broadcast!(method.after_op, offspring, offspring)
-
-#     # select the best individual
-#     minfit, fitidx = findmin(state.fitpop)
-#     state.fittest = offspring[fitidx]
-#     state.fitness = state.fitpop[fitidx]
-
-#     # replace population
-#     parents .= offspring
-
-#     return false
-# end
 
 function recombine!(offspring, parents, selected, method::QD;
                     rng::AbstractRNG=default_rng())
