@@ -182,21 +182,12 @@ function mutate!(population, method::QD, constraints;
 end
 
 
-struct QDObjectiveFunction{TC}
-    func::TC
-end
-
-# Make QDObjectiveFunction instances callable
-function (qdo::QDObjectiveFunction)(args...)
-    return qdo.func(args...)
-end
-
 """
     EvolutionaryObjective(f, x[, F])
 
 Constructor for an objective function object around the function `f` with initial parameter `x`, and objective value `F`.
 """
-function EvolutionaryObjective(f::QDObjectiveFunction, x::Vector{Float64}, F::Vector;
+function EvolutionaryObjective(f, x::Vector{Float64}, F::Vector;
                                eval::Symbol = :serial) 
     defval = default_values(x)
 
@@ -211,7 +202,5 @@ end
 
 
 
-"""Override of the multiobjective check"""
-ismultiobjective(obj::EvolutionaryObjective{QDObjectiveFunction, Any, Any, Any}) = false
 
 
