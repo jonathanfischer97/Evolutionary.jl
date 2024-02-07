@@ -142,24 +142,6 @@ function mutate!(population, method::QD, constraints;
 end
 
 
-# """
-#     EvolutionaryObjective(f, x[, F])
-
-# Constructor for an objective function object around the function `f` with initial parameter `x`, and objective value `F`.
-# """
-# function EvolutionaryObjective(f, x::Vector{Float64}, F::Vector;
-#                                eval::Symbol = :thread) 
-#     defval = default_values(x)
-
-#     TF = typeof(F)
-    
-#     #- convert function into the in-place one
-#     fn = (Fv,xv) -> (Fv .= f(xv))
-#     TN = typeof(fn)
-
-#     EvolutionaryObjective{TN,TF,typeof(x),Val{eval}}(fn, F, defval, 0)
-# end
-
 
 
 
