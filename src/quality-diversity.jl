@@ -30,7 +30,7 @@ struct QD{T1,T2,T3,T4} <: AbstractOptimizer
         num_tournament_groups = 20,
         selection::T1=tournament(cld(populationSize, num_tournament_groups), select=argmax),
         crossover::T2=TPX,
-        mutation::T3=BGA(fill(1.0, 16), 5),
+        mutation::T3=BGA(fill(1.0, 17), 5),
         after_op::T4=identity,
         metrics = ConvergenceMetric[AbsDiff(1e-12)]) where {T1, T2, T3, T4} =
         new{T1,T2,T3,T4}(populationSize, crossoverRate, mutationRate, epsilon, selection, crossover, mutation, after_op, metrics)
