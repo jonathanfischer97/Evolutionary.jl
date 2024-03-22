@@ -188,7 +188,7 @@ value(c::WorstFitnessConstraints, x) = c.constraints(x)
 apply!(c::WorstFitnessConstraints, x) = clip!(c.bounds, x)
 bounds(c::WorstFitnessConstraints) = c.bounds
 function penalty!(fitness::AbstractVector{T}, c::WorstFitnessConstraints{T,F}, population) where {T,F}
-    worst = maximum(fitness)
+    worst = minimum(fitness)
     for (i,x) in enumerate(population)
         cv = value(c, x)
         p = zeros(size(cv))
@@ -199,7 +199,7 @@ function penalty!(fitness::AbstractVector{T}, c::WorstFitnessConstraints{T,F}, p
             for (i,j) in enumerate(c.bounds.ineqc)
                 p[j] = c.bounds.σc[i]*(c.bounds.bc[i]-cv[j])
             end
-            fitness[i] = worst + sum(abs, p)
+            fitness[i] = worst - sum(abs, p)
         end
     end
     return fitness
