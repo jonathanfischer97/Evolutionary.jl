@@ -101,7 +101,6 @@ function update_state!(objfun, constraints, state::QDState, parents, method::QD,
     mutate!(offspring, method, constraints, rng=rng) #* only mutate descendants of the selected
 
     #* calculate fitness, period, and amplitude of the population
-    @info "Constraint type: $(typeof(constraints))"
     evaluate!(objfun, state.valarray, offspring, constraints)
 
     #* select the best individual
