@@ -137,6 +137,7 @@ function mutate!(population, method::QD, constraints;
         if rand(rng) < method.mutationRate
             method.mutation(population[i], rng=rng)
         end
+        population[i] .= abs.(population[i])
         apply!(constraints, population[i])
     end
 end
@@ -147,6 +148,8 @@ function evaluate!(objfun, valarray, population, constraints::WorstFitnessConstr
     # apply penalty to fitness
     penalty!(view(valarray, 1, :), constraints, population)
 end
+
+
 
 
 
