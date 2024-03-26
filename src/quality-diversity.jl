@@ -11,7 +11,7 @@ Floating number specifies fraction of population.
 - `selection`: [Selection](@ref) function (default: [`tournament`](@ref))
 - `crossover`: [Crossover](@ref) function (default: [`genop`](@ref))
 - `mutation`: [Mutation](@ref) function (default: [`genop`](@ref))
-- `after_op`: a function that is executed on each individual afrer mutation operations (default: `identity`)
+- `after_op`: a function that is executed on each individual after mutation operations (default: `identity`)
 - `metrics` is a collection of convergence metrics.
 """
 struct QD{T1,T2,T3,T4} <: AbstractOptimizer
@@ -22,7 +22,8 @@ struct QD{T1,T2,T3,T4} <: AbstractOptimizer
     selection::T1
     crossover::T2
     mutation::T3
-    after_op::T4
+    # after_op::T4
+    ode_solver::T4
     metrics::ConvergenceMetrics
 
     QD(; populationSize::Int=10000, crossoverRate::Float64=0.75, mutationRate::Float64=0.75,
@@ -31,9 +32,10 @@ struct QD{T1,T2,T3,T4} <: AbstractOptimizer
         selection::T1=tournament(cld(populationSize, num_tournament_groups), select=argmax),
         crossover::T2=TPX,
         mutation::T3=BGA(fill(1.0, 17), 5),
-        after_op::T4=identity,
+        ode_solver::T4,
+        # after_op::T4=identity,
         metrics = ConvergenceMetric[AbsDiff(1e-12)]) where {T1, T2, T3, T4} =
-        new{T1,T2,T3,T4}(populationSize, crossoverRate, mutationRate, epsilon, selection, crossover, mutation, after_op, metrics)
+        new{T1,T2,T3,T4}(populationSize, crossoverRate, mutationRate, epsilon, selection, crossover, mutation, ode_solver, metrics)
 end
 population_size(method::QD) = method.populationSize
 default_options(method::QD) = (abstol=1e-4, reltol=1e-2, successive_f_tol = 4, iterations=5, parallelization = :thread, show_trace=true, show_every=1, store_trace=true,)
@@ -148,6 +150,49 @@ function evaluate!(objfun, valarray, population, constraints::WorstFitnessConstr
     # apply penalty to fitness
     penalty!(view(valarray, 1, :), constraints, population)
 end
+
+
+# """
+#     get_k_nearest_neighbors_distances(population::Matrix{Float64}, k::Int)
+
+# Uses `KDTree` to search for the nearest `k` neighbors for each chromosome in a population.
+# Returns a matrix where each row contains distances to the `k` nearest neighbors for each chromosome.
+# """
+# function get_k_nearest_neighbors_distances(population::Matrix{Float64}, k::Int)::Matrix{Float64}
+#     #- Create a KDTree with Euclidean metric
+#     kdtree = KDTree(population)
+
+#     _, dists = knn(kdtree, population, k + 1) #* k+1 because the first one is the point itself
+
+#     return stack(dists)
+# end
+
+# """
+#     compute_crowding_discount!(crowding_vector::Vector{Float64}, population::Matrix{Float64}, k::Int)
+
+# Calculate vector crowding discount values to discount the fitness values by.
+# """
+# function compute_crowding_discount!(crowding_discount_vector::Vector{Float64}, population::AbstractArray, k::Int)
+#     #-Normalize the population parameters to [0,1]
+#     normalized_population = standardize(UnitRangeTransform, population, dims = 2)
+
+#     #- Get distances to the nearest `k` neighbors for each chromosome
+#     neighbor_dists = get_k_nearest_neighbors_distances(normalized_population, k)
+
+#     #- Compute crowding score and inversely scale so that smaller distances have higher scores
+#     crowding_discount_vector .= mean(neighbor_dists, dims=1) |> vec
+
+#     #- Normalize the crowding vector to [0,1]
+#     min_crowding = minimum(crowding_discount_vector)
+#     @info "min crowding = $min_crowding"
+#     max_crowding = maximum(crowding_discount_vector)
+#     @info "max crowding = $max_crowding"
+#     if max_crowding != min_crowding
+#         crowding_discount_vector .= (crowding_discount_vector .- min_crowding) ./ (max_crowding - min_crowding)
+#     end
+
+#     return crowding_discount_vector
+# end
 
 
 
