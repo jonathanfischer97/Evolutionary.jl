@@ -1,8 +1,8 @@
 module EvolutionaryProgressMeter
 
     # using Evolutionary, ProgressMeter
-    import Evolutionary
-    using ProgressMeter
+    using ProgressMeter:: @showprogress
+    using Evolutionary
 
     function Evolutionary.value!(obj::Evolutionary.EvolutionaryObjective{TC,TF,TX,Val{:threadprogress}},
         F::AbstractVector, xs::AbstractVector{TX}) where {TC,TF<:Real,TX}
