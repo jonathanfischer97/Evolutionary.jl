@@ -86,7 +86,7 @@ end
 function value!(obj::EvolutionaryObjective{TC,TF,TX,Val{:thread}},
                 F::AbstractVector, xs::AbstractVector{TX}) where {TC,TF<:Real,TX}
     n = length(xs)
-    Threads.@threads for i in 1:n
+    Threads.@threads :static for i in 1:n
         F[i] = value(obj, xs[i])
     end
     F
