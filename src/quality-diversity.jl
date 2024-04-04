@@ -129,7 +129,6 @@ function recombine!(offspring, parents, selected, method::QD;
             offspring[i], offspring[j] = p1, p2
         end
     end
-
 end
 
 function mutate!(population, method::QD, constraints;
@@ -143,6 +142,17 @@ function mutate!(population, method::QD, constraints;
         apply!(constraints, population[i])
     end
 end
+
+# function mutate!(population, method::QD, constraints;
+#                  rng::AbstractRNG=default_rng())
+#     @Threads.threads for ind in population
+#         if rand(rng) < method.mutationRate
+#             method.mutation(ind, rng=rng)
+#         end
+#         ind .= abs.(ind)
+#         apply!(constraints, ind)
+#     end
+# end
 
 function evaluate!(objfun, valarray, population, constraints::WorstFitnessConstraints)
     # calculate fitness of the population

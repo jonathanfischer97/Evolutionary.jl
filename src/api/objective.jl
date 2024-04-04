@@ -20,9 +20,11 @@ function EvolutionaryObjective(f::TC, x::AbstractArray,
     # convert function into the in-place one
     TF = typeof(F)
     fn, TN = if funargnum(f) == 2 && F isa AbstractArray
+        # println("In-place!")
         ff = (Fv,xv) -> (Fv .= f(xv))
         ff, typeof(ff)
     else
+        # println("Not in-place!")
         f, TC
     end
     EvolutionaryObjective{TN,TF,typeof(x),Val{eval}}(fn, F, defval, 0)
@@ -86,7 +88,7 @@ end
 function value!(obj::EvolutionaryObjective{TC,TF,TX,Val{:thread}},
                 F::AbstractVector, xs::AbstractVector{TX}) where {TC,TF<:Real,TX}
     n = length(xs)
-    Threads.@threads :static for i in 1:n
+    Threads.@threads for i in 1:n
         F[i] = value(obj, xs[i])
     end
     F
@@ -111,3 +113,12 @@ function value!(obj::EvolutionaryObjective{TC,TF,TX,Val{:thread}},
     end
     F
 end
+
+
+# function value!(obj::EvolutionaryObjective{TC,TF,TX,Val{:thread}},
+#                 F::AbstractMatrix, xs::AbstractVector{TX}) where {TC,TF,TX}
+#     @Threads.threads :static for (i, fv) in enumerate(eachcol(F))
+#         value(obj, fv, xs[i])
+#     end
+#     F
+# end
