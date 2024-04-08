@@ -107,7 +107,7 @@ end
 function value!(obj::EvolutionaryObjective{TC,TF,TX,Val{:thread}},
                 F::AbstractMatrix, xs::AbstractVector{TX}) where {TC,TF,TX}
     n = length(xs)
-    @Threads.threads for i in 1:n
+    Threads.@threads for i in 1:n
         fv = view(F, :, i)
         value(obj, fv, xs[i])
     end
@@ -115,10 +115,3 @@ function value!(obj::EvolutionaryObjective{TC,TF,TX,Val{:thread}},
 end
 
 
-# function value!(obj::EvolutionaryObjective{TC,TF,TX,Val{:thread}},
-#                 F::AbstractMatrix, xs::AbstractVector{TX}) where {TC,TF,TX}
-#     @Threads.threads :static for (i, fv) in enumerate(eachcol(F))
-#         value(obj, fv, xs[i])
-#     end
-#     F
-# end
