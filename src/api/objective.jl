@@ -17,14 +17,13 @@ function EvolutionaryObjective(f::TC, x::AbstractArray,
                                F::Union{Real, AbstractArray{<:Real}} = zero(f(x));
                                eval::Symbol = :serial) where {TC}
     defval = default_values(x)
+
     # convert function into the in-place one
     TF = typeof(F)
     fn, TN = if funargnum(f) == 2 && F isa AbstractArray
-        # println("In-place!")
         ff = (Fv,xv) -> (Fv .= f(xv))
         ff, typeof(ff)
     else
-        # println("Not in-place!")
         f, TC
     end
     EvolutionaryObjective{TN,TF,typeof(x),Val{eval}}(fn, F, defval, 0)
