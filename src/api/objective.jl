@@ -21,6 +21,7 @@ function EvolutionaryObjective(f::TC, x::AbstractArray,
     # convert function into the in-place one
     TF = typeof(F)
     fn, TN = if funargnum(f) == 2 && F isa AbstractArray
+        println("Converting function to in-place function")
         ff = (Fv,xv) -> (Fv .= f(xv))
         ff, typeof(ff)
     else

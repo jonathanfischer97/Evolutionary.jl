@@ -6,7 +6,7 @@ module EvolutionaryProgressMeter
     import Evolutionary: value!
 
     function Evolutionary.value!(obj::Evolutionary.EvolutionaryObjective{TC,TF,TX,Val{:threadprogress}},
-        F::AbstractVector, xs::AbstractVector{TX}) where {TC,TF<:Real,TX<:AbstractVector}
+        F::AbstractVector, xs::AbstractVector{TX}) where {TC,TF<:Real,TX}
 
         n = length(xs)
         @showprogress Threads.@threads for i in 1:n

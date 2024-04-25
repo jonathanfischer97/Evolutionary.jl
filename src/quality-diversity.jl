@@ -39,7 +39,7 @@ summary(m::QD) = "QD[P=$(m.populationSize),x=$(m.crossoverRate),μ=$(m.mutationR
 show(io::IO,m::QD) = print(io, summary(m))
 
 """QD state type that captures additional data from the objective function in `valarray`"""
-mutable struct QDState{T <: AbstractArray} <: AbstractOptimizerState 
+mutable struct QDState{T} <: AbstractOptimizerState 
     fittestValue::Float64  #* fitness of the fittest individual
     fittestChromosome::T  #* fittest chromosome (vector of gene values)
     objective_values::Matrix{Float64} #* array to store fitness, period, and amplitude of the population
