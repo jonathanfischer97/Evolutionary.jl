@@ -1,5 +1,5 @@
 # Individual
-const Individual = Union{AbstractArray, Function, Nothing}
+# const Individual = Union{AbstractArray, Function, Nothing}
 
 
 # Optimizer

@@ -14,7 +14,7 @@ Floating number specifies fraction of population.
 - `after_op`: a function that is executed on each individual after mutation operations (default: `identity`)
 - `metrics` is a collection of convergence metrics.
 """
-struct QD{T1,T2,T3} <: AbstractOptimizer
+struct QD{T1,T2,T3,T4} <: AbstractOptimizer
     populationSize::Int
     crossoverRate::Float64
     mutationRate::Float64
@@ -22,7 +22,7 @@ struct QD{T1,T2,T3} <: AbstractOptimizer
     selection::T1
     crossover::T2
     mutation::T3
-    metrics::ConvergenceMetrics
+    metrics::T4
 
     QD(; populationSize::Int=10000, crossoverRate::Float64=0.75, mutationRate::Float64=0.75,
         ɛ::Real=0, epsilon::Real=ɛ,
@@ -31,7 +31,7 @@ struct QD{T1,T2,T3} <: AbstractOptimizer
         crossover::T2=TPX,
         mutation::T3=BGA(fill(1.0, 17), 5),
         metrics = ConvergenceMetric[AbsDiff(1e-12)]) where {T1, T2, T3} =
-        new{T1,T2,T3}(populationSize, crossoverRate, mutationRate, epsilon, selection, crossover, mutation, metrics)
+        new{T1,T2,T3,typeof(metrics)}(populationSize, crossoverRate, mutationRate, epsilon, selection, crossover, mutation, metrics)
 end
 population_size(method::QD) = method.populationSize
 default_options(method::QD) = (abstol=1e-4, reltol=1e-2, successive_f_tol = 4, iterations=5, parallelization = :thread, show_trace=true, show_every=1, store_trace=true,)
