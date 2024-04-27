@@ -74,7 +74,8 @@ function initial_state(method::QD, options, objfun, population)
     fitvals = get_fitness(objective_values)
 
     #- Evaluate population fitness, period and amplitude
-    value!(objfun, objective_values, population)
+    population_matrix = parent(parent(population))
+    value!(objfun, objective_values, eachcol(population_matrix))
 
     #- Get the maximum fitness and index of the fittest individual
     maxfit, maxfitidx = findmax(fitvals)
@@ -87,7 +88,7 @@ end
 function update_state!(objfun, constraints, state::QDState, parents, method::QD, options, itr)
     populationSize = method.populationSize
     rng = options.rng
-    offspring = similar(parents) 
+    offspring = copy(parents) 
 
     fitvals = get_fitness(state.objective_values)
 
