@@ -25,5 +25,4 @@ module EvolutionaryProgressMeter
         end
         F
     end
-
 end

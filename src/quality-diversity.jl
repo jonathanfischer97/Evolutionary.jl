@@ -29,7 +29,7 @@ struct QD{T1,T2,T3,T4} <: AbstractOptimizer
         num_tournament_groups = 20,
         selection::T1=tournament(cld(populationSize, num_tournament_groups), select=argmax),
         crossover::T2=TPX,
-        mutation::T3=BGA(fill(1.0, 17), 5),
+        mutation::T3=PLM(1.0; pm = 0.75, η = 2),
         metrics = ConvergenceMetric[AbsDiff(1e-12)]) where {T1, T2, T3} =
         new{T1,T2,T3,typeof(metrics)}(populationSize, crossoverRate, mutationRate, epsilon, selection, crossover, mutation, metrics)
 end
@@ -37,6 +37,8 @@ population_size(method::QD) = method.populationSize
 default_options(method::QD) = (abstol=1e-4, reltol=1e-2, successive_f_tol = 4, iterations=5, parallelization = :thread, show_trace=true, show_every=1, store_trace=true,)
 summary(m::QD) = "QD[P=$(m.populationSize),x=$(m.crossoverRate),μ=$(m.mutationRate),ɛ=$(m.ɛ)]"
 show(io::IO,m::QD) = print(io, summary(m))
+ismultiobjective(obj::EvolutionaryObjective{<:Any,<:Any,<:Any,<:Val}) = false
+
 
 """QD state type that captures additional data from the objective function in `valarray`"""
 mutable struct QDState{T} <: AbstractOptimizerState 
@@ -46,6 +48,7 @@ mutable struct QDState{T} <: AbstractOptimizerState
 end  
 value(s::QDState) = s.fittestValue #return the fitness of the fittest individual
 minimizer(s::QDState) = s.fittestChromosome #return the fittest individual
+get_objective_values(s::QDState) = s.objective_values #return the objective values of the population
 
 function get_fitness(objective_values::AbstractMatrix)
     return @view objective_values[1, :]
@@ -70,12 +73,12 @@ end
 function initial_state(method::QD, options, objfun, population) 
 
     #- Initialize the main output array
-    objective_values = zeros(Float64, (3, method.populationSize))
+    objective_values = zeros((3, method.populationSize))
     fitvals = get_fitness(objective_values)
 
     #- Evaluate population fitness, period and amplitude
-    population_matrix = parent(parent(population))
-    value!(objfun, objective_values, eachcol(population_matrix))
+    # population_matrix = parent(parent(population))
+    value!(objfun, objective_values, population)
 
     #- Get the maximum fitness and index of the fittest individual
     maxfit, maxfitidx = findmax(fitvals)
@@ -88,7 +91,7 @@ end
 function update_state!(objfun, constraints, state::QDState, parents, method::QD, options, itr)
     populationSize = method.populationSize
     rng = options.rng
-    offspring = copy(parents) 
+    offspring = deepcopy(parents) 
 
     fitvals = get_fitness(state.objective_values)
 

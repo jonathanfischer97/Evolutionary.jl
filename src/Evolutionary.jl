@@ -62,7 +62,7 @@ module Evolutionary
 
     # Quality Diversity
     include("quality-diversity.jl")
-    export QD, get_fitness, get_periods, get_amplitudes
+    export QD, get_fitness, get_periods, get_amplitudes, get_objective_values
 
     # Differential Evolution
     include("de.jl")
