@@ -76,6 +76,7 @@ function optimize(objfun::D, constraints::C, method::M, population::AbstractArra
     stopped, stopped_by_callback = false, false
     converged, counter_tol = false, 0 # tolerance convergence
     is_moo = ismultiobjective(objfun)
+    println("Multi-objective optimization: ", is_moo)
 
     # initialize convergence metrics
     # use abstol as a tolerance value for metrics
@@ -106,6 +107,7 @@ function optimize(objfun::D, constraints::C, method::M, population::AbstractArra
 
         # evaluate convergence
         converged = assess_convergence(state, method)
+        println("Converged: ", converged)
 
         # check convergence persistence
         counter_tol = converged ? counter_tol+1 : 0
@@ -117,10 +119,12 @@ function optimize(objfun::D, constraints::C, method::M, population::AbstractArra
         if tracing
             # update trace; callbacks can stop routine early by returning true
             stopped_by_callback = trace!(tr, iteration, objfun, state, population, method, options, time()-t0)
+            println("Stopped by callback: ", stopped_by_callback)
         end
 
         _time = time()
         stopped_by_time_limit = _time-t0 > options.time_limit
+        println("Stopped by time limit: ", stopped_by_time_limit)
 
         if stopped_by_callback || stopped_by_time_limit
             stopped = true

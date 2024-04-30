@@ -30,11 +30,11 @@ struct QD{T1,T2,T3,T4} <: AbstractOptimizer
         selection::T1=tournament(cld(populationSize, num_tournament_groups), select=argmax),
         crossover::T2=TPX,
         mutation::T3=PLM(1.0; pm = 0.75, η = 2),
-        metrics = ConvergenceMetric[AbsDiff(1e-12)]) where {T1, T2, T3} =
+        metrics = ConvergenceMetric[AbsDiff(Inf)]) where {T1, T2, T3} =
         new{T1,T2,T3,typeof(metrics)}(populationSize, crossoverRate, mutationRate, epsilon, selection, crossover, mutation, metrics)
 end
 population_size(method::QD) = method.populationSize
-default_options(method::QD) = (abstol=1e-4, reltol=1e-2, successive_f_tol = 4, iterations=5, parallelization = :thread, show_trace=true, show_every=1, store_trace=true,)
+default_options(method::QD) = (abstol=Inf, reltol=Inf, successive_f_tol = 4, iterations=5, parallelization = :thread, show_trace=true, show_every=1, store_trace=true,)
 summary(m::QD) = "QD[P=$(m.populationSize),x=$(m.crossoverRate),μ=$(m.mutationRate),ɛ=$(m.ɛ)]"
 show(io::IO,m::QD) = print(io, summary(m))
 ismultiobjective(obj::EvolutionaryObjective{<:Any,<:Any,<:Any,<:Val}) = false
