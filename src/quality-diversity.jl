@@ -14,7 +14,7 @@ Floating number specifies fraction of population.
 - `after_op`: a function that is executed on each individual after mutation operations (default: `identity`)
 - `metrics` is a collection of convergence metrics.
 """
-struct QD{T1,T2,T3,T4} <: AbstractOptimizer
+struct QD{T1,T2,T3,T4, T5} <: AbstractOptimizer
     populationSize::Int
     crossoverRate::Float64
     mutationRate::Float64
@@ -23,6 +23,7 @@ struct QD{T1,T2,T3,T4} <: AbstractOptimizer
     crossover::T2
     mutation::T3
     metrics::T4
+    odeprob::T5
 
     QD(; populationSize::Int=10000, crossoverRate::Float64=0.75, mutationRate::Float64=0.75,
         ɛ::Real=0, epsilon::Real=ɛ,
@@ -30,8 +31,9 @@ struct QD{T1,T2,T3,T4} <: AbstractOptimizer
         selection::T1=tournament(cld(populationSize, num_tournament_groups), select=argmax),
         crossover::T2=TPX,
         mutation::T3=PLM(1.0; pm = 0.75, η = 2),
-        metrics = ConvergenceMetric[AbsDiff(Inf)]) where {T1, T2, T3} =
-        new{T1,T2,T3,typeof(metrics)}(populationSize, crossoverRate, mutationRate, epsilon, selection, crossover, mutation, metrics)
+        metrics = ConvergenceMetric[AbsDiff(Inf)],
+        odeprob::T5) where {T1, T2, T3, T5} =
+        new{T1,T2,T3,typeof(metrics),T5}(populationSize, crossoverRate, mutationRate, epsilon, selection, crossover, mutation, metrics, odeprob)
 end
 population_size(method::QD) = method.populationSize
 default_options(method::QD) = (abstol=Inf, reltol=Inf, successive_f_tol = 4, iterations=5, parallelization = :thread, show_trace=true, show_every=1, store_trace=true,)
