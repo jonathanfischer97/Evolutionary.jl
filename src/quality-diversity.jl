@@ -27,8 +27,8 @@ struct QD{T1,T2,T3,T4, T5} <: AbstractOptimizer
 
     QD(; populationSize::Int=10000, crossoverRate::Float64=0.75, mutationRate::Float64=0.75,
         ɛ::Real=0, epsilon::Real=ɛ,
-        num_tournament_groups = 20,
-        selection::T1=tournament(cld(populationSize, num_tournament_groups), select=argmax),
+        # num_tournament_groups = 20,
+        selection::T1=tournament(cld(populationSize, 20), select=argmax),
         crossover::T2=TPX,
         mutation::T3=PLM(1.0; pm = 0.75, η = 2),
         metrics = ConvergenceMetric[AbsDiff(Inf)],
