@@ -52,14 +52,18 @@ value(s::QDState) = s.fittestValue #return the fitness of the fittest individual
 minimizer(s::QDState) = s.fittestChromosome #return the fittest individual
 get_objective_values(s::QDState) = s.objective_values #return the objective values of the population
 
+
+"""Get the fitness values from the objective_values matrix. View of the first row."""
 function get_fitness(objective_values::AbstractMatrix)
     return @view objective_values[1, :]
 end
 
+"""Get the periods from the objective_values matrix. View of the second row."""
 function get_periods(objective_values::AbstractMatrix)
     return @view objective_values[2, :]
 end
 
+"""Get the amplitudes from the objective_values matrix. View of the third row."""
 function get_amplitudes(objective_values::AbstractMatrix)
     return @view objective_values[3, :]
 end
