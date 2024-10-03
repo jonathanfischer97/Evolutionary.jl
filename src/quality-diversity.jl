@@ -11,8 +11,8 @@ Floating number specifies fraction of population.
 - `selection`: [Selection](@ref) function (default: [`tournament`](@ref))
 - `crossover`: [Crossover](@ref) function (default: [`genop`](@ref))
 - `mutation`: [Mutation](@ref) function (default: [`genop`](@ref))
-- `after_op`: a function that is executed on each individual after mutation operations (default: `identity`)
 - `metrics` is a collection of convergence metrics.
+- `optsys` is the OptimizationReactionSystem, or whatever struct is used to pass the ODE problem or any other miscellaneous data to the trace function.
 """
 struct QD{T1,T2,T3,T4, T5} <: AbstractOptimizer
     populationSize::Int
@@ -126,16 +126,59 @@ function update_state!(objfun, constraints, state::QDState, parents, method::QD,
 end
 
 
+# function recombine!(offspring, parents, selected, method::QD;
+#                     rng::AbstractRNG=default_rng())
+#     n = length(selected)
+#     mates = ((i,i == n ? i-1 : i+1) for i in 1:2:n)
+#     for (i,j) in mates
+#         p1, p2 = parents[selected[i]], parents[selected[j]]
+#         if rand(rng) < method.crossoverRate
+#             offspring[i], offspring[j] = method.crossover(p1, p2, rng=rng)
+#         else
+#             offspring[i], offspring[j] = p1, p2
+#         end
+#     end
+# end
+
+
+"""
+    recombine!(offspring, parents, selected, method::QD; rng::AbstractRNG=default_rng())
+
+Perform recombination (crossover) on the selected individuals from the parent population
+to create the offspring population.
+
+# Arguments
+- `offspring`: The array to store the resulting offspring.
+- `parents`: The array containing the parent population.
+- `selected`: Indices of selected individuals for mating.
+- `method::QD`: The Quality Diversity method object containing algorithm parameters.
+- `rng`: Random number generator (optional, default is `default_rng()`).
+"""
 function recombine!(offspring, parents, selected, method::QD;
                     rng::AbstractRNG=default_rng())
     n = length(selected)
-    mates = ((i,i == n ? i-1 : i+1) for i in 1:2:n)
-    for (i,j) in mates
+    
+    # Create pairs for mating using non-circular pairing
+    # If n is odd, the last individual is paired with the previous one
+    mates = ((i, i == n ? i-1 : i+1) for i in 1:2:n)
+    
+    # Pre-determine crossover events for efficiency
+    # This creates a boolean array indicating which pairs will undergo crossover
+    crossover_events = rand(rng, n÷2) .< method.crossoverRate
+
+    # Iterate through the mating pairs
+    for (idx, (i, j)) in enumerate(mates)
         p1, p2 = parents[selected[i]], parents[selected[j]]
-        if rand(rng) < method.crossoverRate
-            offspring[i], offspring[j] = method.crossover(p1, p2, rng=rng)
+        
+        if crossover_events[idx]
+            # Perform crossover
+            o1, o2 = method.crossover(p1, p2, rng=rng)
+            offspring[i] .= o1
+            offspring[j] .= o2
         else
-            offspring[i], offspring[j] = p1, p2
+            # Direct copy if no crossover
+            offspring[i] .= p1
+            offspring[j] .= p2
         end
     end
 end
@@ -145,7 +188,7 @@ function mutate!(population, method::QD, constraints;
     n = length(population)
     for i in 1:n
         if rand(rng) < method.mutationRate
-            method.mutation(population[i], rng=rng)
+            method.mutation(parent(population[i]), rng=rng)
         end
         population[i] .= abs.(population[i])
         apply!(constraints, population[i])
