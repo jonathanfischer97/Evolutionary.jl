@@ -36,7 +36,7 @@ struct QD{T1,T2,T3,T4, T5} <: AbstractOptimizer
         new{T1,T2,T3,typeof(metrics),T5}(populationSize, crossoverRate, mutationRate, epsilon, selection, crossover, mutation, metrics, optsys)
 end
 population_size(method::QD) = method.populationSize
-default_options(method::QD) = (abstol=Inf, reltol=Inf, successive_f_tol = 4, iterations=5, parallelization = :thread, show_trace=true, show_every=1, store_trace=true,)
+default_options(method::QD) = (abstol=Inf, reltol=Inf, successive_f_tol = 4, iterations=5, parallelization = Val(:thread), show_trace=true, show_every=1, store_trace=true,)
 summary(m::QD) = "QD[P=$(m.populationSize),x=$(m.crossoverRate),μ=$(m.mutationRate),ɛ=$(m.ɛ)]"
 show(io::IO,m::QD) = print(io, summary(m))
 ismultiobjective(obj::EvolutionaryObjective{<:Any,<:Any,<:Any,<:Val}) = false
