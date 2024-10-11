@@ -98,6 +98,10 @@ function update_state!(objfun, constraints, state::QDState, parents, method::QD,
     populationSize = method.populationSize
     rng = options.rng
     offspring = deepcopy(parents) 
+    @assert offspring[1] !== parents[1]
+
+    # check that offspring is 1-dimensional
+    @assert ndims(offspring) == 1
 
     fitvals = get_fitness(state.objective_values)
 
@@ -188,7 +192,7 @@ function mutate!(population, method::QD, constraints;
     n = length(population)
     for i in 1:n
         if rand(rng) < method.mutationRate
-            method.mutation(parent(population[i]), rng=rng)
+            method.mutation(population[i], rng=rng)
         end
         population[i] .= abs.(population[i])
         apply!(constraints, population[i])

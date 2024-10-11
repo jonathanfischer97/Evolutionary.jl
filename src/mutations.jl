@@ -245,8 +245,8 @@ function mipmmutation(lowerBounds::Vector, upperBounds::Vector,
             x̄
         end
     end
-    function mutation(recombinant;
-                      rng::AbstractRNG=default_rng()) #where {T <: Vector}
+    function mutation(recombinant::T;
+                      rng::AbstractRNG=default_rng()) where {T <: AbstractVector}
         d = length(recombinant)
         @assert length(lowerBounds) == d "Bounds vector must have $(d) columns"
         @assert length(upperBounds) == d "Bounds vector must have $(d) columns"
