@@ -76,7 +76,7 @@ end
     - `objfun` is the objective function\n
     - `population` is the initial population
 """
-function initial_state(method::QD, options, objfun, population) 
+function initial_state(method::QD, options, objfun, population::AbstractVector) 
 
     #- Initialize the main output array
     objective_values = zeros((3, method.populationSize))
@@ -90,11 +90,11 @@ function initial_state(method::QD, options, objfun, population)
     maxfit, maxfitidx = findmax(fitvals)
 
     #- Initialize the state object
-    return QDState(maxfit, copy(population[maxfitidx]), objective_values)
+    return QDState(maxfit, deepcopy(population[maxfitidx]), objective_values)
 end
 
 """Update state function that captures additional data from the objective function"""
-function update_state!(objfun, constraints, state::QDState, parents, method::QD, options, itr)
+function update_state!(objfun, constraints, state::QDState, parents::AbstractVector, method::QD, options, itr)
     populationSize = method.populationSize
     rng = options.rng
     offspring = deepcopy(parents) 
@@ -114,6 +114,8 @@ function update_state!(objfun, constraints, state::QDState, parents, method::QD,
 
     #* perform mutation with BGA
     mutate!(offspring, method, constraints, rng=rng) #* only mutate descendants of the selected
+
+    @assert offspring != parents
 
     #* calculate fitness, period, and amplitude of the population
     evaluate!(objfun, state.objective_values, offspring, constraints)
@@ -158,8 +160,8 @@ to create the offspring population.
 - `method::QD`: The Quality Diversity method object containing algorithm parameters.
 - `rng`: Random number generator (optional, default is `default_rng()`).
 """
-function recombine!(offspring, parents, selected, method::QD;
-                    rng::AbstractRNG=default_rng())
+function recombine!(offspring::T, parents::T, selected, method::QD;
+                    rng::AbstractRNG=default_rng()) where T <: AbstractVector
     n = length(selected)
     
     # Create pairs for mating using non-circular pairing
@@ -187,25 +189,28 @@ function recombine!(offspring, parents, selected, method::QD;
     end
 end
 
-function mutate!(population, method::QD, constraints;
-                 rng::AbstractRNG=default_rng())
+function mutate!(population::T, method::QD, constraints;
+                 rng::AbstractRNG=default_rng()) where T <: AbstractVector
     n = length(population)
+    show(constraints)
     for i in 1:n
         if rand(rng) < method.mutationRate
             method.mutation(population[i], rng=rng)
         end
-        population[i] .= abs.(population[i])
+        # population[i] .= abs.(population[i])
         apply!(constraints, population[i])
     end
 end
 
 
 
-function evaluate!(objfun, objective_values, population, constraints::WorstFitnessConstraints)
+function evaluate!(objfun, objective_values::AbstractMatrix, population::AbstractVector, constraints::WorstFitnessConstraints)
+    objective_values .= 0.0
+
     # calculate fitness of the population
     value!(objfun, objective_values, population)
     # apply penalty to fitness
-    penalty!(get_fitness(objective_values), constraints, population)
+    # penalty!(get_fitness(objective_values), constraints, population)
 end
 
 
