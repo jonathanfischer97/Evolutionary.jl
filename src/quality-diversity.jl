@@ -192,7 +192,7 @@ end
 function mutate!(population::T, method::QD, constraints;
                  rng::AbstractRNG=default_rng()) where T <: AbstractVector
     n = length(population)
-    show(constraints)
+    # show(constraints)
     for i in 1:n
         if rand(rng) < method.mutationRate
             method.mutation(population[i], rng=rng)
