@@ -109,10 +109,10 @@ function update_state!(objfun, constraints, state::QDState, parents::AbstractVec
     #* select offspring via tournament selection
     selected = method.selection(fitvals, populationSize, rng=rng)
 
-    #* perform mating with TPX
+    #* perform mating 
     recombine!(offspring, parents, selected, method, rng=rng)
 
-    #* perform mutation with BGA
+    #* perform mutation 
     mutate!(offspring, method, constraints, rng=rng) #* only mutate descendants of the selected
 
     @assert offspring != parents
@@ -189,15 +189,15 @@ function recombine!(offspring::T, parents::T, selected, method::QD;
     end
 end
 
+#TODO: make this, or the mutation function, account for the log spaced parameter space, or something. 
 function mutate!(population::T, method::QD, constraints;
                  rng::AbstractRNG=default_rng()) where T <: AbstractVector
     n = length(population)
-    # show(constraints)
     for i in 1:n
         if rand(rng) < method.mutationRate
             method.mutation(population[i], rng=rng)
         end
-        # population[i] .= abs.(population[i])
+        population[i] .= abs.(population[i]) # this is necessary because apply! clips small values to their lower bound, which effectively halfs the mutation rate for the slow rate constants. By applying abs, we basically flip the mutated value to the other side of the lower bound and thus retain the mutation. 
         apply!(constraints, population[i])
     end
 end
